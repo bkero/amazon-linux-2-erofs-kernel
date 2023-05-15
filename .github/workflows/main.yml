@@ -27,14 +27,20 @@ jobs:
 
       - name: Run a multi-line script
         run: |
-          cd $HOME
+          #cd $HOME
           yumdownloader --source kernel
           rpm -i *.rpm
           rm *.rpm
           cd rpmbuild
-          # TODO: modify the .config
+          sed -i 's/^%define buildid (.*)$/%define buildid \1-erofs/' SPECS/kernel.spec
+          rpmbuild -bp SPECS/kernel.spec
+          sed -i 's/^# CONFIG_EROFS_FS is not set/CONFIG_EROFS_FS=m/' ./BUILD/kernel-*/linux-*.amzn2.x86_64/.config
+          pushd kernel-*/linux-*/
+          yes '' | make oldconfig
+          popd
           # TODO: Modify the buildid
           rpmbuild -ba --without debug --without doc --without perf --without tools --without debuginfo --without kdump --without bootwrapper SPECS/kernel.spec
+          rm -rf $HOME/rpmbuild
       - name: Upload generated RPMs
         uses: actions/upload-artifact@v3
         with:
