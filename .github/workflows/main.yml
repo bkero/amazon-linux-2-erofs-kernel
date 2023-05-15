@@ -33,7 +33,7 @@ jobs:
           rpm -i *.rpm
           rm *.rpm
           cd $HOME/rpmbuild
-          sed -i 's/^%define buildid \(.*\)$/%define buildid \1_erofs/' SPECS/kernel.spec
+          #sed -i 's/^%define buildid \(.*\)$/%define buildid \1_erofs/' SPECS/kernel.spec
           rpmbuild -bp SPECS/kernel.spec
           sed -i 's/^# CONFIG_EROFS_FS is not set/CONFIG_EROFS_FS=m/' ./BUILD/kernel-*/linux-*.amzn2.x86_64/.config
           pushd BUILD/kernel-*/linux-*/
@@ -42,8 +42,23 @@ jobs:
           # TODO: Modify the buildid
           rpmbuild -ba --without debug --without doc --without perf --without tools --without debuginfo --without kdump --without bootwrapper SPECS/kernel.spec
           rm -rf $HOME/rpmbuild/{SPECS,SOURCES}/*
-      - name: Upload generated RPMs
+
+      - name: Upload kernel RPM
         uses: actions/upload-artifact@v3
         with:
-          #name: RPMs
-          path: /home/runner/rpmbuild/RPMS/x86_64/
+          path: /home/runner/rpmbuild/RPMS/x86_64/kernel-[0-9]*.rpm
+
+      - name: Upload devel RPM
+        uses: actions/upload-artifact@v3
+        with:
+          path: /home/runner/rpmbuild/RPMS/x86_64/kernel-devel*.rpm
+
+      - name: Upload headers RPM
+        uses: actions/upload-artifact@v3
+        with:
+          path: /home/runner/rpmbuild/RPMS/x86_64/kernel-headers*.rpm
+
+      - name: Upload livepatch RPM
+        uses: actions/upload-artifact@v3
+        with:
+          path: /home/runner/rpmbuild/RPMS/x86_64/kernel-livepatch*.rpm
