@@ -41,7 +41,7 @@ jobs:
           popd
           # TODO: Modify the buildid
           rpmbuild -ba --without debug --without doc --without perf --without tools --without debuginfo --without kdump --without bootwrapper SPECS/kernel.spec
-          rm -rf $HOME/rpmbuild
+          rm -rf $HOME/rpmbuild/{SPECS,SOURCES}/*
       - name: Upload generated RPMs
         uses: actions/upload-artifact@v3
         with:
