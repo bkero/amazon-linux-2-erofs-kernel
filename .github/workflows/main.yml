@@ -38,5 +38,5 @@ jobs:
       - name: Upload generated RPMs
         uses: actions/upload-artifact@v3
         with:
-          name: RPMs
-          path: /home/runner/rpmbuild/RPMS/x86_64/*.rpm
+          #name: RPMs
+          path: /home/runner/rpmbuild/RPMS/x86_64/
