@@ -30,6 +30,7 @@ jobs:
           cd $HOME
           yumdownloader --source kernel
           rpm -i *.rpm
+          rm *.rpm
           cd rpmbuild
           # TODO: modify the .config
           # TODO: Modify the buildid
@@ -38,4 +39,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: RPMs
-          path: /home/runner/rpmbuild/RPMS/*.rpm
+          path: /home/runner/rpmbuild/RPMS/x86_64/*.rpm
