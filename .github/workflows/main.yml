@@ -36,7 +36,7 @@ jobs:
           sed -i 's/^%define buildid \(.*\)$/%define buildid \1_erofs/' SPECS/kernel.spec
           rpmbuild -bp SPECS/kernel.spec
           sed -i 's/^# CONFIG_EROFS_FS is not set/CONFIG_EROFS_FS=m/' ./BUILD/kernel-*/linux-*.amzn2.x86_64/.config
-          pushd kernel-*/linux-*/
+          pushd BUILD/kernel-*/linux-*/
           yes '' | make oldconfig
           popd
           # TODO: Modify the buildid
