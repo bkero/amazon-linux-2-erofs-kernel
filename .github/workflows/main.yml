@@ -34,6 +34,7 @@ jobs:
           rpm -i *.rpm
           rm *.rpm
           cd $HOME/rpmbuild
+          sed -i 's/^# CONFIG_EROFS_FS is not set/CONFIG_EROFS_FS=m/' SOURCES/config-x86_64
           sed -i 's/^%define buildid \(.*\)$/%define buildid \1_erofs/' SPECS/kernel.spec
           rpmbuild -bp SPECS/kernel.spec
           pushd BUILD/kernel-*/linux-*/
