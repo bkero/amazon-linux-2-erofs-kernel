@@ -27,6 +27,7 @@ jobs:
 
       - name: Run a multi-line script
         run: |
+          set -x
           #cd $HOME
           rm -rf $HOME/rpmbuild
           yumdownloader --source kernel
