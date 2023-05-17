@@ -39,6 +39,7 @@ jobs:
           pushd BUILD/kernel-*/linux-*/
           sed -i 's/^# CONFIG_EROFS_FS is not set/CONFIG_EROFS_FS=m/' .config
           yes '' | make oldconfig
+          cat .config >> kernel-*-x86_64.config
           popd
           # TODO: Modify the buildid
           rpmbuild -ba --without debug --without doc --without perf --without tools --without debuginfo --without kdump --without bootwrapper SPECS/kernel.spec
