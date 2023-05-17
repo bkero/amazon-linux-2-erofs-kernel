@@ -1,3 +1,4 @@
+---
 # This is a basic workflow to help you get started with Actions
 
 name: CI
@@ -6,9 +7,9 @@ name: CI
 on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -22,15 +23,37 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
-
-      # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          set -x
+          #cd $HOME
+          rm -rf $HOME/rpmbuild
+          yumdownloader --source kernel
+          rpm -i *.rpm
+          rm *.rpm
+          cd $HOME/rpmbuild
+          sed -i 's/^# CONFIG_EROFS_FS is not set/CONFIG_EROFS_FS=m/' SOURCES/config-x86_64
+          sed -i 's/^%define buildid \(.*\)$/%define buildid \1_erofs/' SPECS/kernel.spec
+          rpmbuild -bp SPECS/kernel.spec
+          pushd BUILD/kernel-*/linux-*/
+          sed -i 's/^# CONFIG_EROFS_FS is not set/CONFIG_EROFS_FS=m/' .config
+          yes '' | make oldconfig
+          cat .config >> kernel-*-x86_64.config
+          popd
+          # TODO: Modify the buildid
+          rpmbuild -ba --without debug --without doc --without perf --without tools --without debuginfo --without kdump --without bootwrapper SPECS/kernel.spec
+          rm -rf $HOME/rpmbuild/{SPECS,SOURCES}/*
+
+      - name: Upload RPMs
+        uses: actions/upload-artifact@v3
+        with:
+          path: /home/runner/rpmbuild/RPMS/x86_64/*.rpm
+
+      - name: Upload release artifacts
+        uses: softprops/action-gh-release@v1
+        if: startswith(github.ref, 'refs/tags/*')
+        with:
+          files:
+            /home/runner/rpmbuild/RPMS/x86_64/*.rpm
